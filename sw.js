@@ -1,5 +1,5 @@
 // Bump this version whenever you change any file, so phones pick up the update.
-const CACHE = "calculator-v1";
+const CACHE = "calculator-v2";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", (event) => {
