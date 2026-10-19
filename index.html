@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculator</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2f5d62">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Calculator">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #dde5da;
+  --body: #eef1e9;
+  --screen: #1f2d2b;
+  --screen-text: #e8f3e4;
+  --screen-dim: #8aa39b;
+  --key: #fbfbf6;
+  --key-text: #1f2d2b;
+  --key-shadow: #b9c4b6;
+  --op: #2f5d62;
+  --op-text: #f2faf7;
+  --op-shadow: #1d3c40;
+  --eq: #e3a72f;
+  --eq-text: #2a1d00;
+  --eq-shadow: #a97817;
+  --fn: #c9d3c5;
+  --fn-shadow: #a3b0a0;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121a19;
+    --body: #1a2523;
+    --screen: #0c1211;
+    --screen-text: #e8f3e4;
+    --screen-dim: #6f8a82;
+    --key: #2a3836;
+    --key-text: #eef4ee;
+    --key-shadow: #0f1716;
+    --op: #3f7c82;
+    --op-text: #f2faf7;
+    --op-shadow: #25494d;
+    --eq: #e3a72f;
+    --eq-text: #2a1d00;
+    --eq-shadow: #8a6212;
+    --fn: #3a4a47;
+    --fn-shadow: #172120;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121a19; --body: #1a2523; --screen: #0c1211; --screen-text: #e8f3e4; --screen-dim: #6f8a82;
+  --key: #2a3836; --key-text: #eef4ee; --key-shadow: #0f1716;
+  --op: #3f7c82; --op-text: #f2faf7; --op-shadow: #25494d;
+  --eq: #e3a72f; --eq-text: #2a1d00; --eq-shadow: #8a6212;
+  --fn: #3a4a47; --fn-shadow: #172120;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.calc {
+  width: 100%; max-width: 380px;
+  background: var(--body);
+  border-radius: 28px;
+  padding: 16px;
+  box-shadow: 0 2px 0 var(--key-shadow), 0 18px 40px rgba(20, 40, 35, .18);
+}
+.screen {
+  background: var(--screen);
+  border-radius: 16px;
+  padding: 16px 18px 14px;
+  min-height: 120px;
+  display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.expr { color: var(--screen-dim); font-size: 1rem; min-height: 1.4em; }
+.value {
+  color: var(--screen-text); font-weight: 600; letter-spacing: -0.02em;
+  font-size: 3rem; line-height: 1.15; white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+button {
+  font: inherit; font-size: 1.5rem; font-weight: 500;
+  height: 64px; border: 0; border-radius: 16px; cursor: pointer;
+  background: var(--key); color: var(--key-text);
+  box-shadow: 0 4px 0 var(--key-shadow);
+  transition: transform .08s, box-shadow .08s;
+  touch-action: manipulation;
+}
+button:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--key-shadow); }
+button:focus-visible { outline: 3px solid var(--eq); outline-offset: 2px; }
+button.fn { background: var(--fn); box-shadow: 0 4px 0 var(--fn-shadow); }
+button.fn:active { box-shadow: 0 1px 0 var(--fn-shadow); }
+button.op { background: var(--op); color: var(--op-text); box-shadow: 0 4px 0 var(--op-shadow); }
+button.op:active { box-shadow: 0 1px 0 var(--op-shadow); }
+button.op.active { background: var(--op-text); color: var(--op); }
+button.eq { background: var(--eq); color: var(--eq-text); box-shadow: 0 4px 0 var(--eq-shadow); }
+button.eq:active { box-shadow: 0 1px 0 var(--eq-shadow); }
+.zero { grid-column: span 2; }
+@media (prefers-reduced-motion: reduce) { button { transition: none; } }
+</style>
+</head>
+<body>
+<main class="calc" aria-label="Calculator">
+  <div class="screen" aria-live="polite">
+    <div class="expr" id="expr"></div>
+    <div class="value" id="value">0</div>
+  </div>
+  <div class="keys">
+    <button class="fn" data-k="clear" aria-label="Clear all" id="clearBtn">AC</button>
+    <button class="fn" data-k="neg" aria-label="Change sign">±</button>
+    <button class="fn" data-k="pct" aria-label="Percent">%</button>
+    <button class="op" data-k="÷" aria-label="Divide">÷</button>
+
+    <button data-k="7">7</button>
+    <button data-k="8">8</button>
+    <button data-k="9">9</button>
+    <button class="op" data-k="×" aria-label="Multiply">×</button>
+
+    <button data-k="4">4</button>
+    <button data-k="5">5</button>
+    <button data-k="6">6</button>
+    <button class="op" data-k="−" aria-label="Subtract">−</button>
+
+    <button data-k="1">1</button>
+    <button data-k="2">2</button>
+    <button data-k="3">3</button>
+    <button class="op" data-k="+" aria-label="Add">+</button>
+
+    <button class="zero" data-k="0">0</button>
+    <button data-k=".">.</button>
+    <button class="eq" data-k="=" aria-label="Equals">=</button>
+  </div>
+</main>
+<script>
+(function () {
+  var cur = "0", prev = null, op = null, fresh = false, done = false, err = false;
+  var exprEl = document.getElementById("expr");
+  var valEl = document.getElementById("value");
+  var clearBtn = document.getElementById("clearBtn");
+  var opBtns = document.querySelectorAll("button.op");
+
+  function fmt(s) {
+    if (err) return "Error";
+    var neg = s.charAt(0) === "-";
+    if (neg) s = s.slice(1);
+    var parts = s.split(".");
+    var int = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return (neg ? "−" : "") + int + (parts.length > 1 ? "." + parts[1] : "");
+  }
+  function clean(n) {
+    if (!isFinite(n)) { err = true; return "0"; }
+    var s = String(parseFloat(n.toPrecision(12)));
+    if (s.indexOf("e") !== -1) s = n.toExponential(6);
+    return s;
+  }
+  function calc(a, o, b) {
+    a = parseFloat(a); b = parseFloat(b);
+    if (o === "+") return clean(a + b);
+    if (o === "−") return clean(a - b);
+    if (o === "×") return clean(a * b);
+    if (o === "÷") return b === 0 ? (err = true, "0") : clean(a / b);
+    return clean(b);
+  }
+  function render() {
+    var t = fmt(cur);
+    valEl.textContent = t;
+    var size = t.length > 14 ? 1.5 : t.length > 11 ? 2 : t.length > 8 ? 2.5 : 3;
+    valEl.style.fontSize = size + "rem";
+    clearBtn.textContent = (cur === "0" && prev === null && !err) ? "AC" : "C";
+    opBtns.forEach(function (b) { b.classList.toggle("active", fresh && op === b.dataset.k); });
+  }
+  function setExpr(t) { exprEl.textContent = t; }
+
+  function digit(d) {
+    if (err) reset();
+    if (fresh || done) { cur = "0"; fresh = false; done = false; if (!op) setExpr(""); }
+    if (cur.replace(/[-.]/g, "").length >= 12) return;
+    cur = cur === "0" ? d : cur + d;
+  }
+  function dot() {
+    if (err) reset();
+    if (fresh || done) { cur = "0"; fresh = false; done = false; if (!op) setExpr(""); }
+    if (cur.indexOf(".") === -1) cur += ".";
+  }
+  function operator(o) {
+    if (err) return;
+    if (op && !fresh) { cur = calc(prev, op, cur); if (err) { setExpr(""); return; } }
+    prev = cur; op = o; fresh = true; done = false;
+    setExpr(fmt(prev) + " " + o);
+  }
+  function equals() {
+    if (err || !op) return;
+    var a = prev, b = cur, o = op;
+    var res = calc(a, o, b);
+    setExpr(err ? "" : fmt(a) + " " + o + " " + fmt(b) + " =");
+    cur = res; prev = null; op = null; fresh = false; done = true;
+  }
+  function reset() { cur = "0"; prev = null; op = null; fresh = false; done = false; err = false; setExpr(""); }
+  function clear() {
+    if (cur !== "0" && !err && !done) { cur = "0"; return; }
+    reset();
+  }
+  function neg() {
+    if (err || cur === "0") return;
+    cur = cur.charAt(0) === "-" ? cur.slice(1) : "-" + cur;
+  }
+  function pct() {
+    if (err) return;
+    cur = clean(parseFloat(cur) / 100);
+    done = true;
+  }
+  function back() {
+    if (err || fresh || done) return;
+    cur = cur.length > 1 && !(cur.length === 2 && cur.charAt(0) === "-") ? cur.slice(0, -1) : "0";
+  }
+
+  function press(k) {
+    if (/^\d$/.test(k)) digit(k);
+    else if (k === ".") dot();
+    else if (k === "clear") clear();
+    else if (k === "neg") neg();
+    else if (k === "pct") pct();
+    else if (k === "=") equals();
+    else if (k === "back") back();
+    else operator(k);
+    render();
+  }
+
+  document.querySelector(".keys").addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (b) press(b.dataset.k);
+  });
+
+  var map = { "+": "+", "-": "−", "*": "×", "/": "÷", "x": "×", "Enter": "=", "=": "=", "Backspace": "back", "Escape": "clear", "%": "pct", ".": ".", ",": "." };
+  document.addEventListener("keydown", function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var k = /^\d$/.test(e.key) ? e.key : map[e.key];
+    if (k) { e.preventDefault(); press(k); }
+  });
+
+  render();
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
