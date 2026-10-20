@@ -67,58 +67,67 @@ html, body { height: 100%; margin: 0; overscroll-behavior: none; }
 body {
   background: var(--bg);
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  display: flex;
-  padding: 16px;
+  display: flex; padding: 16px;
   overflow-x: hidden; overflow-y: auto;
-  -webkit-user-select: none; user-select: none;
-  touch-action: manipulation;
+  -webkit-user-select: none; user-select: none; touch-action: manipulation;
 }
 .calc {
-  margin: auto;
-  width: 100%; max-width: 420px;
-  height: 100%; max-height: 760px; min-height: 480px;
-  display: flex; flex-direction: column; gap: 14px;
-  background: var(--body);
-  border-radius: 28px;
-  padding: 14px;
+  margin: auto; width: 100%; max-width: 420px;
+  height: 100%; max-height: 780px; min-height: 520px;
+  display: flex; flex-direction: column; gap: 12px;
+  background: var(--body); border-radius: 28px; padding: 14px;
   box-shadow: 0 2px 0 var(--key-shadow), 0 18px 40px rgba(20, 40, 35, .18);
 }
 .screen {
-  flex: 1 1 0; min-height: 96px;
-  background: var(--screen);
-  border-radius: 18px;
-  padding: 14px 18px;
-  display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end;
-  overflow: hidden;
+  flex: 1.15 1 0; min-height: 130px;
+  background: var(--screen); border-radius: 18px; padding: 10px 16px 12px;
+  display: flex; flex-direction: column; gap: 4px; overflow: hidden;
 }
-.expr { color: var(--screen-dim); font-size: 1.05rem; min-height: 1.4em; }
-.value {
-  color: var(--screen-text); font-weight: 600; letter-spacing: -0.02em;
-  font-size: 58px; line-height: 1.15; white-space: nowrap;
+.expr {
+  flex: 1 1 0; min-height: 0; position: relative;
+  display: flex; flex-direction: column; overflow-y: auto;
+  color: var(--screen-text); font-size: 2rem; font-weight: 500; line-height: 1.4;
+  text-align: right; word-break: break-all; cursor: text;
+  font-variant-numeric: tabular-nums; scrollbar-width: none;
+}
+.expr::-webkit-scrollbar { display: none; }
+.line { margin-top: auto; }
+.c { padding: 0 .05em; }
+.c.o { color: var(--eq); padding: 0 .14em; }
+.ph { color: var(--screen-dim); }
+.caret {
+  display: inline-block; width: 2px; height: 1.1em; margin: 0 1px;
+  background: var(--eq); vertical-align: text-bottom; animation: blink 1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+.result {
+  color: var(--screen-dim); font-size: 1.35rem; min-height: 1.5em; line-height: 1.5;
+  text-align: right; white-space: nowrap; overflow: hidden;
   font-variant-numeric: tabular-nums;
 }
+.result.bad { color: #ff9d8a; }
+.screen.done .expr { flex: 0 0 auto; max-height: 40%; font-size: 1.2rem; color: var(--screen-dim); }
+.screen.done .result { color: var(--screen-text); font-size: 3.2rem; font-weight: 600; line-height: 1.15; }
 .keys {
-  flex: 2.6 1 0; min-height: 0;
-  display: grid; gap: 10px;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(5, 1fr);
+  flex: 3 1 0; min-height: 0; display: grid; gap: 10px;
+  grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(6, 1fr);
 }
 button {
-  font: inherit; font-size: clamp(1.4rem, 7vw, 1.9rem); font-weight: 500;
+  font: inherit; font-size: clamp(1.3rem, 6vw, 1.75rem); font-weight: 500;
   width: 100%; height: 100%; min-height: 0; padding: 0;
-  border: 0; border-radius: 18px; cursor: pointer;
+  border: 0; border-radius: 16px; cursor: pointer;
   background: var(--key); color: var(--key-text);
   box-shadow: 0 4px 0 var(--key-shadow);
-  transition: transform .08s, box-shadow .08s;
-  touch-action: manipulation;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .08s, box-shadow .08s; touch-action: manipulation;
 }
+button svg { width: 1.5em; height: 1.5em; fill: none; stroke: currentColor; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
 button:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--key-shadow); }
 button:focus-visible { outline: 3px solid var(--eq); outline-offset: 2px; }
 button.fn { background: var(--fn); box-shadow: 0 4px 0 var(--fn-shadow); }
 button.fn:active { box-shadow: 0 1px 0 var(--fn-shadow); }
 button.op { background: var(--op); color: var(--op-text); box-shadow: 0 4px 0 var(--op-shadow); }
 button.op:active { box-shadow: 0 1px 0 var(--op-shadow); }
-button.op.active { background: var(--op-text); color: var(--op); }
 button.eq { background: var(--eq); color: var(--eq-text); box-shadow: 0 4px 0 var(--eq-shadow); }
 button.eq:active { box-shadow: 0 1px 0 var(--eq-shadow); }
 .zero { grid-column: span 2; }
@@ -129,39 +138,39 @@ button.eq:active { box-shadow: 0 1px 0 var(--eq-shadow); }
 @media (max-height: 560px) and (orientation: landscape) {
   .calc { flex-direction: row; min-height: 0; max-width: none; }
   .screen { flex: 1 1 0; }
-  .keys { flex: 1.4 1 0; }
-  .value { font-size: 40px; }
+  .keys { flex: 1.5 1 0; }
+  .expr { font-size: 1.5rem; }
 }
-@media (prefers-reduced-motion: reduce) { button { transition: none; } }
+@media (prefers-reduced-motion: reduce) { button { transition: none; } .caret { animation: none; } }
 </style>
 </head>
 <body>
 <main class="calc" aria-label="Calculator">
-  <div class="screen" aria-live="polite">
-    <div class="expr" id="expr"></div>
-    <div class="value" id="value">0</div>
+  <div class="screen" id="screen">
+    <div class="expr" id="expr" aria-label="Expression. Tap to move the cursor."></div>
+    <div class="result" id="result" aria-live="polite"></div>
   </div>
   <div class="keys">
-    <button class="fn" data-k="clear" aria-label="Clear all" id="clearBtn">AC</button>
-    <button class="fn" data-k="neg" aria-label="Change sign">±</button>
-    <button class="fn" data-k="pct" aria-label="Percent">%</button>
+    <button class="fn" data-k="clear" aria-label="Clear all">AC</button>
+    <button class="fn" data-k="back" aria-label="Delete"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12z"/><path d="M12 9.5l5 5M17 9.5l-5 5"/></svg></button>
+    <button class="fn" data-k="left" aria-label="Move cursor left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="fn" data-k="right" aria-label="Move cursor right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button class="fn" data-k="(" aria-label="Open bracket">(</button>
+    <button class="fn" data-k=")" aria-label="Close bracket">)</button>
+    <button class="fn" data-k="%" aria-label="Percent">%</button>
     <button class="op" data-k="÷" aria-label="Divide">÷</button>
-
     <button data-k="7">7</button>
     <button data-k="8">8</button>
     <button data-k="9">9</button>
     <button class="op" data-k="×" aria-label="Multiply">×</button>
-
     <button data-k="4">4</button>
     <button data-k="5">5</button>
     <button data-k="6">6</button>
     <button class="op" data-k="−" aria-label="Subtract">−</button>
-
     <button data-k="1">1</button>
     <button data-k="2">2</button>
     <button data-k="3">3</button>
     <button class="op" data-k="+" aria-label="Add">+</button>
-
     <button class="zero" data-k="0">0</button>
     <button data-k=".">.</button>
     <button class="eq" data-k="=" aria-label="Equals">=</button>
@@ -169,149 +178,228 @@ button.eq:active { box-shadow: 0 1px 0 var(--eq-shadow); }
 </main>
 <script>
 (function () {
-  var cur = "0", prev = null, op = null, fresh = false, done = false, err = false;
+  var chars = [], cur = 0, done = false, resultRaw = "", flash = "";
+  var screenEl = document.getElementById("screen");
   var exprEl = document.getElementById("expr");
-  var valEl = document.getElementById("value");
-  var clearBtn = document.getElementById("clearBtn");
-  var opBtns = document.querySelectorAll("button.op");
+  var resEl = document.getElementById("result");
+  var OPS = "+−×÷";
+  function isDigit(c) { return c !== undefined && c >= "0" && c <= "9"; }
+  function isOp(c) { return c !== undefined && OPS.indexOf(c) !== -1; }
+  function endsValue(c) { return isDigit(c) || c === ")" || c === "%"; }
 
-  function fmt(s) {
-    if (err) return "Error";
-    var neg = s.charAt(0) === "-";
-    if (neg) s = s.slice(1);
-    var parts = s.split(".");
-    var int = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return (neg ? "−" : "") + int + (parts.length > 1 ? "." + parts[1] : "");
+  // ---- Evaluator (no eval): + − × ÷ % ( ) and unary minus ----
+  function evaluate(list) {
+    var s = list.join(""), open = 0, i = 0, n;
+    for (n = 0; n < list.length; n++) {
+      if (list[n] === "(") open++;
+      if (list[n] === ")") { open--; if (open < 0) return { err: "Check brackets" }; }
+    }
+    if (!s) return { err: "" };
+    s += new Array(open + 1).join(")");
+    function peek() { return s.charAt(i); }
+    function fail(m) { throw new Error(m); }
+    function number() {
+      var st = i;
+      while (isDigit(peek()) || peek() === ".") i++;
+      var t = s.slice(st, i), v = parseFloat(t);
+      if (!t || isNaN(v)) fail("Incomplete expression");
+      return v;
+    }
+    function primary() {
+      if (peek() === "(") { i++; var r = add(); if (peek() !== ")") fail("Check brackets"); i++; return { v: r.v, p: false }; }
+      return { v: number(), p: false };
+    }
+    function postfix() { var r = primary(); while (peek() === "%") { i++; r = { v: r.v / 100, p: true }; } return r; }
+    function unary() {
+      if (peek() === "−") { i++; var r = unary(); return { v: -r.v, p: r.p }; }
+      if (peek() === "+") { i++; return unary(); }
+      return postfix();
+    }
+    function term() {
+      var r = unary();
+      while (peek() === "×" || peek() === "÷") {
+        var o = peek(); i++;
+        var b = unary();
+        if (o === "×") r = { v: r.v * b.v, p: false };
+        else { if (b.v === 0) fail("Can’t divide by zero"); r = { v: r.v / b.v, p: false }; }
+      }
+      return r;
+    }
+    function add() {
+      var r = term();
+      while (peek() === "+" || peek() === "−") {
+        var o = peek(); i++;
+        var b = term();
+        var bv = b.p ? r.v * b.v : b.v; // 200 + 10% = 220
+        r = { v: o === "+" ? r.v + bv : r.v - bv, p: false };
+      }
+      return r;
+    }
+    try {
+      var out = add();
+      if (i < s.length) fail("Check expression");
+      if (!isFinite(out.v)) fail("Result too large");
+      return { v: out.v };
+    } catch (e) { return { err: e.message }; }
   }
-  function clean(n) {
-    if (!isFinite(n)) { err = true; return "0"; }
-    var s = String(parseFloat(n.toPrecision(12)));
-    if (s.indexOf("e") !== -1) s = n.toExponential(6);
-    return s;
+  function clean(n) { return String(parseFloat(n.toPrecision(12))); }
+  function fmt(t) {
+    var neg = t.charAt(0) === "-";
+    if (neg) t = t.slice(1);
+    if (/e/i.test(t)) return (neg ? "−" : "") + t;
+    var p = t.split(".");
+    return (neg ? "−" : "") + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (p.length > 1 ? "." + p[1] : "");
   }
-  function calc(a, o, b) {
-    a = parseFloat(a); b = parseFloat(b);
-    if (o === "+") return clean(a + b);
-    if (o === "−") return clean(a - b);
-    if (o === "×") return clean(a * b);
-    if (o === "÷") return b === 0 ? (err = true, "0") : clean(a / b);
-    return clean(b);
-  }
-  function render() {
-    var t = fmt(cur);
-    valEl.textContent = t;
-    var maxW = valEl.parentElement.clientWidth - 36;
-    var size = window.innerHeight < 560 ? 40 : 58;
-    valEl.style.fontSize = size + "px";
-    while (valEl.scrollWidth > maxW && size > 20) { size -= 2; valEl.style.fontSize = size + "px"; }
-    clearBtn.textContent = (cur === "0" && prev === null && !err) ? "AC" : "C";
-    opBtns.forEach(function (b) { b.classList.toggle("active", fresh && op === b.dataset.k); });
-  }
-  function setExpr(t) { exprEl.textContent = t; }
 
-  function digit(d) {
-    if (err) reset();
-    if (fresh || done) { cur = "0"; fresh = false; done = false; if (!op) setExpr(""); }
-    if (cur.replace(/[-.]/g, "").length >= 12) return;
-    cur = cur === "0" ? d : cur + d;
+  // ---- Editing at the cursor ----
+  function ins(str) { for (var j = 0; j < str.length; j++) { chars.splice(cur, 0, str.charAt(j)); cur++; } }
+  function typeDigit(d) {
+    var p = chars[cur - 1];
+    if (p === ")" || p === "%") ins("×");
+    else if (p === "0" && !isDigit(chars[cur - 2]) && chars[cur - 2] !== "." && chars[cur] !== ".") { chars.splice(cur - 1, 1); cur--; }
+    ins(d);
   }
-  function dot() {
-    if (err) reset();
-    if (fresh || done) { cur = "0"; fresh = false; done = false; if (!op) setExpr(""); }
-    if (cur.indexOf(".") === -1) cur += ".";
+  function typeDot() {
+    var l = cur, r = cur;
+    while (l > 0 && (isDigit(chars[l - 1]) || chars[l - 1] === ".")) l--;
+    while (r < chars.length && (isDigit(chars[r]) || chars[r] === ".")) r++;
+    if (chars.slice(l, r).indexOf(".") !== -1) return;
+    if (chars[cur - 1] === ")" || chars[cur - 1] === "%") ins("×");
+    if (!isDigit(chars[cur - 1])) ins("0");
+    ins(".");
   }
-  function operator(o) {
-    if (err) return;
-    if (op && !fresh) { cur = calc(prev, op, cur); if (err) { setExpr(""); return; } }
-    prev = cur; op = o; fresh = true; done = false;
-    setExpr(fmt(prev) + " " + o);
+  function typeOp(o) {
+    var p = chars[cur - 1];
+    if (isOp(p)) {
+      if (o === "−" && (p === "×" || p === "÷")) { ins(o); return; }
+      while (isOp(chars[cur - 1])) { chars.splice(cur - 1, 1); cur--; }
+    }
+    if (cur === 0 || chars[cur - 1] === "(") { if (o === "−" || o === "+") ins(o); return; }
+    ins(o);
   }
-  function equals() {
-    if (err || !op) return;
-    var a = prev, b = cur, o = op;
-    var res = calc(a, o, b);
-    setExpr(err ? "" : fmt(a) + " " + o + " " + fmt(b) + " =");
-    cur = res; prev = null; op = null; fresh = false; done = true;
-  }
-  function reset() { cur = "0"; prev = null; op = null; fresh = false; done = false; err = false; setExpr(""); }
-  function clear() {
-    if (cur !== "0" && !err && !done) { cur = "0"; return; }
-    reset();
-  }
-  function neg() {
-    if (err || cur === "0") return;
-    cur = cur.charAt(0) === "-" ? cur.slice(1) : "-" + cur;
-  }
-  function pct() {
-    if (err) return;
-    cur = clean(parseFloat(cur) / 100);
-    done = true;
-  }
-  function back() {
-    if (err || fresh || done) return;
-    cur = cur.length > 1 && !(cur.length === 2 && cur.charAt(0) === "-") ? cur.slice(0, -1) : "0";
+  function typeParen(c) {
+    var p = chars[cur - 1];
+    if (c === "(") { if (endsValue(p)) ins("×"); ins("("); return; }
+    var open = 0, j;
+    for (j = 0; j < cur; j++) { if (chars[j] === "(") open++; else if (chars[j] === ")") open--; }
+    if (open > 0 && endsValue(p)) ins(")");
   }
 
   function press(k) {
-    var wasErr = err;
-    if (/^\d$/.test(k)) digit(k);
-    else if (k === ".") dot();
-    else if (k === "clear") clear();
-    else if (k === "neg") neg();
-    else if (k === "pct") pct();
-    else if (k === "=") equals();
-    else if (k === "back") back();
-    else operator(k);
+    flash = "";
+    if (k === "clear") { chars = []; cur = 0; done = false; render(); return; }
+    if (done) {
+      if (k === "back" || k === "left" || k === "right") { done = false; cur = chars.length; }
+      else if (k === "=" || k === ")") return;
+      else if (isOp(k) || k === "%") {
+        chars = /e/i.test(resultRaw) ? [] : resultRaw.replace("-", "−").split("");
+        cur = chars.length; done = false;
+      } else { chars = []; cur = 0; done = false; }
+    }
+    if (/^\d$/.test(k)) typeDigit(k);
+    else if (k === ".") typeDot();
+    else if (isOp(k)) typeOp(k);
+    else if (k === "(" || k === ")") typeParen(k);
+    else if (k === "%") { if (endsValue(chars[cur - 1])) ins("%"); }
+    else if (k === "back") { if (cur > 0) { chars.splice(cur - 1, 1); cur--; } }
+    else if (k === "left") { if (cur > 0) cur--; }
+    else if (k === "right") { if (cur < chars.length) cur++; }
+    else if (k === "=") {
+      var r = evaluate(chars);
+      if (r.err === undefined) { resultRaw = clean(r.v); done = true; }
+      else if (chars.length) { flash = r.err; buzz([30, 40, 30]); }
+    }
     render();
-    if (err && !wasErr) buzz([30, 40, 30]);
   }
 
-  // Haptics: Android uses the Vibration API; iPhone (Safari 17.4+) uses a hidden switch input.
+  function render() {
+    var h = "", i;
+    for (i = 0; i <= chars.length; i++) {
+      if (i === cur && !done) h += '<span class="caret"></span>';
+      if (i < chars.length) h += '<span class="c' + (isOp(chars[i]) ? " o" : "") + '" data-i="' + i + '">' + chars[i] + "</span>";
+    }
+    if (!chars.length && !done) h += '<span class="ph">0</span>';
+    exprEl.innerHTML = '<div class="line">' + h + "</div>";
+    screenEl.classList.toggle("done", done);
+    resEl.classList.toggle("bad", !!flash);
+    resEl.style.fontSize = "";
+    if (done) {
+      resEl.textContent = fmt(resultRaw);
+      var size = window.innerHeight < 560 ? 36 : 52;
+      resEl.style.fontSize = size + "px";
+      while (resEl.scrollWidth > resEl.clientWidth && size > 20) { size -= 2; resEl.style.fontSize = size + "px"; }
+    } else if (flash) {
+      resEl.textContent = flash;
+    } else {
+      var t = chars.join(""), r = chars.length ? evaluate(chars) : { err: "" };
+      resEl.textContent = (r.err === undefined && /[+×÷%()]|.−/.test(t)) ? "= " + fmt(clean(r.v)) : "";
+    }
+    var c = exprEl.querySelector(".caret");
+    if (c) {
+      var top = c.offsetTop, bottom = top + c.offsetHeight;
+      if (top < exprEl.scrollTop) exprEl.scrollTop = top;
+      else if (bottom > exprEl.scrollTop + exprEl.clientHeight) exprEl.scrollTop = bottom - exprEl.clientHeight;
+    }
+  }
+
+  // ---- Haptics: Android = Vibration API; iPhone (Safari 17.4+) = hidden switch input ----
   var canVibrate = typeof navigator.vibrate === "function";
   var sw = document.createElement("label");
   sw.setAttribute("aria-hidden", "true");
   sw.style.cssText = "position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none";
   var swInput = document.createElement("input");
-  swInput.type = "checkbox";
-  swInput.setAttribute("switch", "");
-  swInput.tabIndex = -1;
-  sw.appendChild(swInput);
-  document.body.appendChild(sw);
+  swInput.type = "checkbox"; swInput.setAttribute("switch", ""); swInput.tabIndex = -1;
+  sw.appendChild(swInput); document.body.appendChild(sw);
+  function buzz(p) { try { if (canVibrate) navigator.vibrate(p); else sw.click(); } catch (e) {} }
+  function strength(k) { return k === "=" ? 22 : k === "clear" ? 16 : /^[\d.]$/.test(k) ? 8 : 12; }
 
-  function buzz(pattern) {
-    try {
-      if (canVibrate) navigator.vibrate(pattern);
-      else sw.click();
-    } catch (e) {}
-  }
-  function strength(k) {
-    if (k === "=") return 22;
-    if (k === "clear") return 16;
-    return /^[\d.]$/.test(k) ? 8 : 12;
-  }
-
+  // ---- Keys (hold ⌫ and arrows to repeat) ----
   var keys = document.querySelector(".keys");
-  if (canVibrate) {
-    keys.addEventListener("pointerdown", function (e) {
-      var b = e.target.closest("button");
-      if (b) buzz(strength(b.dataset.k));
-    });
-  }
+  var rep = { timer: null, iv: null, fired: false };
+  function stopRep() { clearTimeout(rep.timer); clearInterval(rep.iv); }
+  keys.addEventListener("pointerdown", function (e) {
+    var b = e.target.closest("button");
+    if (!b) return;
+    var k = b.dataset.k;
+    rep.fired = false; stopRep();
+    if (canVibrate) buzz(strength(k));
+    if (k === "back" || k === "left" || k === "right") {
+      rep.timer = setTimeout(function () {
+        rep.fired = true; press(k);
+        rep.iv = setInterval(function () { press(k); buzz(canVibrate ? 6 : 1); }, 80);
+      }, 400);
+    }
+  });
+  document.addEventListener("pointerup", stopRep);
+  document.addEventListener("pointercancel", stopRep);
   keys.addEventListener("click", function (e) {
     var b = e.target.closest("button");
     if (!b) return;
+    if (rep.fired) { rep.fired = false; return; }
     if (!canVibrate) buzz(1);
     press(b.dataset.k);
   });
-  window.addEventListener("resize", render);
 
-  var map = { "+": "+", "-": "−", "*": "×", "/": "÷", "x": "×", "Enter": "=", "=": "=", "Backspace": "back", "Escape": "clear", "%": "pct", ".": ".", ",": "." };
+  // ---- Tap the expression to place the cursor ----
+  exprEl.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-i]");
+    flash = "";
+    if (done) { done = false; }
+    if (t) {
+      var i = +t.dataset.i, r = t.getBoundingClientRect();
+      cur = e.clientX < r.left + r.width / 2 ? i : i + 1;
+    } else cur = chars.length;
+    buzz(canVibrate ? 6 : 1);
+    render();
+  });
+
+  var map = { "+": "+", "-": "−", "*": "×", "/": "÷", "x": "×", "X": "×", "Enter": "=", "=": "=", "Backspace": "back", "Escape": "clear", "%": "%", "(": "(", ")": ")", ".": ".", ",": ".", "ArrowLeft": "left", "ArrowRight": "right" };
   document.addEventListener("keydown", function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     var k = /^\d$/.test(e.key) ? e.key : map[e.key];
     if (k) { e.preventDefault(); press(k); }
   });
-
+  window.addEventListener("resize", render);
   render();
 })();
 </script>
